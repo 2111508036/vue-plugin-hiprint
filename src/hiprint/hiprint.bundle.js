@@ -1791,7 +1791,7 @@ var hiprint = function (t) {
           r(a);
         }
         return TableExcelHelper.syncTargetWidthToOption(t), [i, colgroup];
-      }, TableExcelHelper.createTableFooter = function (t, e, n, i, o, r) {
+      }, TableExcelHelper.createTableFooter = function (t, e, n, i, o, r, pageIndex) {
         // n=>options e=>表格所有数据 o=>所有打印数据 r=>表格每页数据
         var a = $("<tfoot></tfoot>"), p = this.getFooterFormatter(n, i);
         var tst = this.tableSummaryTitle;
@@ -1870,7 +1870,8 @@ var hiprint = function (t) {
           a.append(tableFooter);
         }
         if (p) {
-          a.append(p(n, e, o, r));
+          // pageIndex: 当前页码(0开始) 如果表格脚最后页显示,则中间回调 undefined
+          a.append(p(n, e, o, r, pageIndex));
         }
         return a;
       }, TableExcelHelper.tableSummaryTitle = function (column, title, data) {
@@ -1881,6 +1882,7 @@ var hiprint = function (t) {
         var o = TableExcelHelper.reconsitutionTableColumnTree(t),
           r = $("<tbody></tbody>");
         var gff = h.getGroupFieldsFormatter(n, i);
+        var groupRowIndex = 0;
         var groupFields = gff ? (n.groupFields = gff(i, n, e)) : i.groupFields ? i.groupFields : [];
         (e || (e = []), groupFields.length) ? _assets_plugins_hinnn__WEBPACK_IMPORTED_MODULE_1__.a.groupBy(e, groupFields, function (t) {
           var e = {};
@@ -1902,8 +1904,10 @@ var hiprint = function (t) {
           var groupFooterFormatter = h.getGroupFooterFormatter(n, i);
           var groupData = t;
           if (groupData.rows.forEach(function (t, rowIndex) {
-            var e = TableExcelHelper.createRowTarget(o, t, n, i, rowIndex, groupData.rows, printData);
+            let sequenceIndex = n.groupSequenceContinue ? groupRowIndex : rowIndex;
+            var e = TableExcelHelper.createRowTarget(o, t, n, i, sequenceIndex, groupData.rows, printData);
             r.append(e);
+            groupRowIndex += 1;
           }), groupFooterFormatter) {
             let result = groupFooterFormatter(o.colspan, e, printData, t, n)
             if ($(result).is("tr")) {
@@ -5090,12 +5094,27 @@ var hiprint = function (t) {
       }
 
       return t.prototype.createTarget = function () {
-        return this.target = $(`<div class="hiprint-option-item hiprint-option-item-row">\n        <div class="hiprint-option-item-label">\n        ${i18n.__('表格脚函数')}\n        </div>\n        <div class="hiprint-option-item-field">\n        <textarea style="height:80px;" placeholder="function(options,rows,data,pageData){ return \'<tr></tr>\' }" class="auto-submit"></textarea>\n        </div>\n    </div>`), this.target;
+        return this.target = $(`<div class="hiprint-option-item hiprint-option-item-row">\n        <div class="hiprint-option-item-label">\n        ${i18n.__('表格脚函数')}\n        </div>\n        <div class="hiprint-option-item-field">\n        <textarea style="height:80px;" placeholder="function(options,rows,data,pageData,pageIndex){ return \'<tr></tr>\' }" class="auto-submit"></textarea>\n        </div>\n    </div>`), this.target;
       }, t.prototype.getValue = function () {
         var t = this.target.find("textarea").val();
         if (t) return t;
       }, t.prototype.setValue = function (t) {
         this.target.find("textarea").val(t ? t.toString() : null);
+      }, t.prototype.destroy = function () {
+        this.target.remove();
+      }, t;
+    }(),
+    groupSequenceContinue = function () {
+      function t() {
+        this.name = "groupSequenceContinue";
+      }
+
+      return t.prototype.createTarget = function () {
+        return this.target = $(`<div class="hiprint-option-item hiprint-option-item-row">\n        <div class="hiprint-option-item-label">\n        ${i18n.__('分组序号续编')}\n        </div>\n        <div class="hiprint-option-item-field">\n        <select class="auto-submit">\n        <option value="" >${i18n.__('默认')}</option>\n        <option value="true" >${i18n.__('是')}</option>\n        <option value="false" >${i18n.__('否')}</option>\n        </select>\n        </div>\n    </div>`), this.target;
+      }, t.prototype.getValue = function () {
+        if ("true" == this.target.find("select").val()) return !0;
+      }, t.prototype.setValue = function (t) {
+        this.target.find("select").val((null == t ? "" : t).toString());
       }, t.prototype.destroy = function () {
         this.target.remove();
       }, t;
@@ -5357,7 +5376,7 @@ var hiprint = function (t) {
       t.init(), t.printElementOptionItems[e.name] = e;
     }, t.getItem = function (e) {
       return t.init(), t.printElementOptionItems[e];
-    }, t._printElementOptionItems = [new fontFamily(), new r(), new a(), new p(), new i(), new s(), new l(), new pt(), new u(), new d(), new c(), new h(), new f(), new g(), new m(), new d2(), new c2(), new v(), new y(), new b(), new E(), new qrCodeLevel(), new T(), new P(), new _(), new w(), new x(), new coordinate(), new widthHeight(), new C(), new imageFit(), new O(), new H(), new D(), new paperNumberContinue(), new watermarkOptions(), new I(), new R(), new pageBreak(), new M(), new M2(), new S(), new B(), new F(), new L(), new A(), new z(), new k(), new st(), new N(), new V(), new W(), new j(), new U(), new borderRadius(), new zIndex(), new K(), new G(), new q(), new X(), new Y(), new Q(), new J(), new Z(), new tt(), new et(), new nt(), new it(), new ot(),new textWrap(), new at(), new lt(), new panelLayoutOptions(), new ut(), new ith(), new dt(), new ct(), new ht(), new ft(), new gt(), new mt(), new rowcolumns(), new rowsColumnsMergeClean(), new groupFieldsFormatter(), new groupFormatter(), new groupFooterFormatter(), new vt(), new yt(), new bt(), new Tt(), new Et(), new Pt(), new stylerHeader(), new renderFormatter(), new _t(), new wt(), new maxRows(), new xt(), new tableColumnH(), new tableE(), new tableQRCodeLevel(), new tablept(), new tableSummaryTitle(), new tableSummaryText(), new tableSummaryColspan(), new tableSummary(), new tableSummaryAlign(), new tableSummaryNumFormat(), new tableSummaryFormatter(),new showCodeTitle(), new upperCase(), new barcodeType(), new qrcodeType(), new barColor(), new barTextMode(), new barWidth(), new barAutoWidth()], t;
+    }, t._printElementOptionItems = [new fontFamily(), new r(), new a(), new p(), new i(), new s(), new l(), new pt(), new u(), new d(), new c(), new h(), new f(), new g(), new m(), new d2(), new c2(), new v(), new y(), new b(), new E(), new qrCodeLevel(), new T(), new P(), new _(), new w(), new x(), new coordinate(), new widthHeight(), new C(), new imageFit(), new O(), new H(), new D(), new paperNumberContinue(), new watermarkOptions(), new I(), new R(), new pageBreak(), new M(), new M2(), new S(), new B(), new F(), new L(), new A(), new z(), new k(), new st(), new N(), new V(), new W(), new j(), new U(), new borderRadius(), new zIndex(), new K(), new G(), new q(), new X(), new Y(), new Q(), new J(), new Z(), new tt(), new et(), new nt(), new it(), new ot(),new textWrap(), new at(), new lt(), new panelLayoutOptions(), new ut(), new ith(), new dt(), new ct(), new ht(), new ft(), new gt(), new mt(), new rowcolumns(), new rowsColumnsMergeClean(), new groupSequenceContinue(), new groupFieldsFormatter(), new groupFormatter(), new groupFooterFormatter(), new vt(), new yt(), new bt(), new Tt(), new Et(), new Pt(), new stylerHeader(), new renderFormatter(), new _t(), new wt(), new maxRows(), new xt(), new tableColumnH(), new tableE(), new tableQRCodeLevel(), new tablept(), new tableSummaryTitle(), new tableSummaryText(), new tableSummaryColspan(), new tableSummary(), new tableSummaryAlign(), new tableSummaryNumFormat(), new tableSummaryFormatter(),new showCodeTitle(), new upperCase(), new barcodeType(), new qrcodeType(), new barColor(), new barTextMode(), new barWidth(), new barAutoWidth()], t;
   }();
 }, function (t, e, n) {
   "use strict";
@@ -5832,9 +5851,9 @@ var hiprint = function (t) {
               if ("last" == this.options.tableFooterRepeat && !c.isEnd) break;
               if ("no" !== this.options.tableFooterRepeat) {
                 if (noPaging) {
-                  d.find("tbody").append(_table_TableExcelHelper__WEBPACK_IMPORTED_MODULE_6__.a.createTableFooter(this.printElementType.columns, this.getData(t), this.options, this.printElementType, t, h).children())
+                  d.find("tbody").append(_table_TableExcelHelper__WEBPACK_IMPORTED_MODULE_6__.a.createTableFooter(this.printElementType.columns, this.getData(t), this.options, this.printElementType, t, h, o).children())
                 } else {
-                  _table_TableExcelHelper__WEBPACK_IMPORTED_MODULE_6__.a.createTableFooter(this.printElementType.columns, this.getData(t), this.options, this.printElementType, t, h).insertBefore(d.find("tbody"));
+                  _table_TableExcelHelper__WEBPACK_IMPORTED_MODULE_6__.a.createTableFooter(this.printElementType.columns, this.getData(t), this.options, this.printElementType, t, h, o).insertBefore(d.find("tbody"));
                 }
                 that.css(d, t);
               }
@@ -8328,7 +8347,7 @@ var hiprint = function (t) {
         var e = this;
         this.text = t.text, this.field = t.field, this.fields = t.fields, this.title = t.title, this.tid = t.tid, this.data = t.data, this.styler = t.styler, this.formatter = t.formatter, this.type = t.type, this.options = t.options, this.editable = t.editable != void 0 ? t.editable : !0, this.columnDisplayEditable = t.columnDisplayEditable != void 0 ? t.columnDisplayEditable : !0, this.columnDisplayIndexEditable = t.columnDisplayIndexEditable != void 0 ? t.columnDisplayIndexEditable : !0, this.columnTitleEditable = t.columnTitleEditable != void 0 ? t.columnTitleEditable : !0, this.columnResizable = t.columnResizable != void 0 ? t.columnResizable : !0, this.columnAlignEditable = t.columnAlignEditable != void 0 ? t.columnAlignEditable : !0, this.columns = [], (t.columns || []).forEach(function (t, n) {
           e.columns.push(e.createTableColumnArray(t));
-        }), this.rowStyler = t.rowStyler, this.striped = t.striped, this.groupFields = t.groupFields || [], this.groupFormatter = t.groupFormatter, this.groupFooterFormatter = t.groupFooterFormatter, this.footerFormatter = t.footerFormatter, this.rowsColumnsMerge = t.rowsColumnsMerge, this.rowsColumnsMergeClean = t.rowsColumnsMergeClean,  this.gridColumnsFooterFormatter = t.gridColumnsFooterFormatter,
+        }), this.rowStyler = t.rowStyler, this.striped = t.striped, this.groupFields = t.groupFields || [], this.groupFormatter = t.groupFormatter, this.groupFooterFormatter = t.groupFooterFormatter, this.footerFormatter = t.footerFormatter, this.rowsColumnsMerge = t.rowsColumnsMerge, this.rowsColumnsMergeClean = t.rowsColumnsMergeClean, this.groupSequenceContinue = t.groupSequenceContinue, this.gridColumnsFooterFormatter = t.gridColumnsFooterFormatter,
           this.isEnableEditField = t.isEnableEditField != void 0 ? t.isEnableEditField : !0, this.isEnableContextMenu = t.isEnableContextMenu != void 0 ? t.isEnableContextMenu : !0, this.isEnableInsertRow = t.isEnableInsertRow != void 0 ? t.isEnableInsertRow : !0, this.isEnableDeleteRow = t.isEnableDeleteRow != void 0 ? t.isEnableDeleteRow : !0, this.isEnableInsertColumn = t.isEnableInsertColumn != void 0 ? t.isEnableInsertColumn : !0, this.isEnableDeleteColumn = t.isEnableDeleteColumn != void 0 ? t.isEnableDeleteColumn : !0, this.isEnableMergeCell = t.isEnableMergeCell != void 0 ? t.isEnableMergeCell : !0, this.columnObj = this.makeColumnObj();
       }
 
